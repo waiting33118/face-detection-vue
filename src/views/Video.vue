@@ -26,7 +26,6 @@ export default {
   setup () {
     const initParams = reactive({
       modelUri: '/models',
-      onlineModelUri: 'https://github.com/waiting33118/face-detection-vue/tree/main/public/models',
       option: new faceAPI.SsdMobilenetv1Options({ minConfidence: 0.5 })
     })
     const constraints = reactive({
@@ -83,8 +82,6 @@ export default {
       const initModel = async () => {
         await faceAPI.nets.ssdMobilenetv1.loadFromUri(initParams.modelUri)
         await faceAPI.nets.ageGenderNet.loadFromUri(initParams.modelUri)
-        await faceAPI.nets.ssdMobilenetv1.loadFromUri(initParams.onlineModelUri)
-        await faceAPI.nets.ageGenderNet.loadFromUri(initParams.onlineModelUri)
       }
 
       /**
