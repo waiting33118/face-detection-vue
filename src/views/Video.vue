@@ -53,19 +53,35 @@ export default {
     const board = reactive({
       realTimeCounts: 0,
       male: 0,
-      female: 0
+      female: 0,
+      fps: 0
     })
+
+    let forwardTimes = []
+
+    /**
+     * caculate fps for detection
+     * @function
+     * @param number
+     */
+    const updateTimeStats = (timeInMs) => {
+      forwardTimes = [timeInMs].concat(forwardTimes).slice(0, 30)
+      const avgTimeInMs = forwardTimes.reduce((total, t) => total + t) / forwardTimes.length
+      board.fps = faceAPI.utils.round(1000 / avgTimeInMs)
+    }
 
     /**
        * @function
        * @description detect input video
        */
     const runModel = async () => {
+      const beforeDetect = Date.now()
       const result = await faceAPI.detectAllFaces(videoEl.value, initParams.option).withAgeAndGender()
+      updateTimeStats(Date.now() - beforeDetect)
+
       if (result) {
         const dims = faceAPI.matchDimensions(canvasEl.value, videoEl.value, true)
         const resizeResults = faceAPI.resizeResults(result, dims)
-        console.log(resizeResults)
         board.realTimeCounts = resizeResults.length
         board.male = resizeResults.filter(data => data.gender === 'male').length
         board.female = resizeResults.filter(data => data.gender === 'female').length
@@ -85,8 +101,8 @@ export default {
       }
 
       /**
+       * startup webcam
        * @function
-       * @description startup webcam
        */
       const startStream = async () => {
         try {
